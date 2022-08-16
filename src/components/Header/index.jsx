@@ -9,23 +9,21 @@ const Header = ({ title, cities, onChange = null }) => {
 	};
 
 	return (
-		<>
-			<Navbar bg="dark" variant="dark">
-				<Container>
-					<Navbar.Brand href="#home">{title}</Navbar.Brand>
-					<Nav className="ms-auto">
-						<Form.Select aria-label="Selecione a cidade" onChange={handleChangeCity}>
-							<option value="">Selecione a cidade</option>
-							{cities?.map(({ id, name }) => (
-								<option key={id} value={id}>
-									{name}
-								</option>
-							))}
-						</Form.Select>
-					</Nav>
-				</Container>
-			</Navbar>
-		</>
+		<Navbar bg="dark" variant="dark">
+			<Container>
+				<Navbar.Brand href="/">{title}</Navbar.Brand>
+				<Nav className="ms-auto">
+					<Form.Select aria-label="Selecione a cidade" onChange={handleChangeCity}>
+						<option value="">Selecione a cidade</option>
+						{cities?.map(({ id, name }) => (
+							<option key={id} value={id}>
+								{name}
+							</option>
+						))}
+					</Form.Select>
+				</Nav>
+			</Container>
+		</Navbar>
 	);
 };
 

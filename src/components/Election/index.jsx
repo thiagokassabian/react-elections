@@ -8,13 +8,13 @@ const Election = ({ election, selectedCity: city, candidates }) => {
 		<>
 			<h2>Eleição em {name}</h2>
 			<ul className="list-inline">
-				<li class="list-inline-item">
+				<li className="list-inline-item">
 					<strong>Total de eleitores:</strong> {votingPopulation.toLocaleString('pt-BR')}
 				</li>
-				<li class="list-inline-item">
+				<li className="list-inline-item">
 					<strong>Abstenções:</strong> {absence.toLocaleString('pt-BR')}
 				</li>
-				<li class="list-inline-item">
+				<li className="list-inline-item">
 					<strong>Comparecimento:</strong> {presence.toLocaleString('pt-BR')}
 				</li>
 			</ul>
@@ -23,9 +23,10 @@ const Election = ({ election, selectedCity: city, candidates }) => {
 				{election
 					.sort((a, b) => b.votes - a.votes)
 					.map((candidate, i) => (
-						<div className="col-6 col-md-4 col-lg-3 col-xl-2 d-flex align-items-stretch mb-3">
+						<div
+							className="col-6 col-md-4 col-lg-3 col-xl-2 d-flex align-items-stretch mb-3"
+							key={candidate.candidateId}>
 							<Candidate
-								key={candidate.candidateId}
 								data={{
 									...candidate,
 									candidate: candidates.find(c => c.id === candidate.candidateId),
