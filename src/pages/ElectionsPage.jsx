@@ -4,6 +4,7 @@ import Spinner from 'react-bootstrap/Spinner';
 import { getCandidate, getCities, getElection } from '../services/apiService';
 import Election from '../components/Election';
 import Header from '../components/Header';
+import './styles.scss';
 
 const ElectionsPage = () => {
 	const [cities, setCities] = useState(null);

@@ -6,19 +6,19 @@ const Election = ({ election, selectedCity: city, candidates }) => {
 
 	return (
 		<>
-			<h2>Eleição em {name}</h2>
-			<ul className="list-inline">
-				<li className="list-inline-item">
+			<h2 className="display-5 text-center text-md-start">Eleição em {name}</h2>
+			<ul className="list-unstyled d-flex flex-column gap-md-3 flex-md-row align-items-center justify-content-md-start">
+				<li>
 					<strong>Total de eleitores:</strong> {votingPopulation.toLocaleString('pt-BR')}
 				</li>
-				<li className="list-inline-item">
-					<strong>Abstenções:</strong> {absence.toLocaleString('pt-BR')}
-				</li>
-				<li className="list-inline-item">
+				<li>
 					<strong>Comparecimento:</strong> {presence.toLocaleString('pt-BR')}
 				</li>
+				<li>
+					<strong>Abstenções:</strong> {absence.toLocaleString('pt-BR')}
+				</li>
 			</ul>
-			<p>{election.length} candidatos</p>
+			<p className="text-center text-md-start">{election.length} candidatos</p>
 			<div className="row">
 				{election
 					.sort((a, b) => b.votes - a.votes)

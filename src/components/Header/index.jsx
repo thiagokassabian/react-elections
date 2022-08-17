@@ -11,7 +11,7 @@ const Header = ({ title, cities, onChange = null }) => {
 	return (
 		<Navbar bg="dark" variant="dark">
 			<Container>
-				<Navbar.Brand href="/">{title}</Navbar.Brand>
+				<Navbar.Brand>{title}</Navbar.Brand>
 				<Nav className="ms-auto">
 					<Form.Select aria-label="Selecione a cidade" onChange={handleChangeCity}>
 						<option value="">Selecione a cidade</option>
