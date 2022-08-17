@@ -43,8 +43,6 @@ const ElectionsPage = () => {
 				}
 			};
 			fetchData();
-		} else {
-			setElection(null);
 		}
 	}, [selectedCity]);
 

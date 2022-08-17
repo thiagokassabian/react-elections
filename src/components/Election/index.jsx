@@ -24,7 +24,7 @@ const Election = ({ election, selectedCity: city, candidates }) => {
 					.sort((a, b) => b.votes - a.votes)
 					.map((candidate, i) => (
 						<div
-							className="col-6 col-md-4 col-lg-3 col-xl-2 d-flex align-items-stretch mb-3"
+							className="col-6 col-md-4 col-xl-3 d-flex align-items-stretch mb-3"
 							key={candidate.candidateId}>
 							<Candidate
 								data={{
