@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react';
 import { Container } from 'react-bootstrap';
+import Spinner from 'react-bootstrap/Spinner';
+import { getCandidate, getCities, getElection } from '../services/apiService';
 import Election from '../components/Election';
 import Header from '../components/Header';
-import { getCandidate, getCandidates, getCities, getElection } from '../services/apiService';
-import Spinner from 'react-bootstrap/Spinner';
 
 const ElectionsPage = () => {
 	const [cities, setCities] = useState(null);
@@ -13,46 +13,42 @@ const ElectionsPage = () => {
 	const [isLoading, setIsLoading] = useState(false);
 
 	useEffect(() => {
-		const fetchData = async () => {
+		const fetchCitiesData = async () => {
 			const citiesFromServer = await getCities();
-			const candidatesFromServer = await getCandidates();
-			setCandidates(candidatesFromServer);
 			setCities(citiesFromServer);
 		};
-		fetchData();
+		fetchCitiesData();
 	}, []);
 
-	useEffect(() => {
-		if (selectedCity) {
-			const fetchData = async () => {
-				try {
-					const electionFromServer = await getElection(selectedCity.id);
-					const candidatesFromServer = Promise.all(
-						electionFromServer.map(async candidate => {
-							const response = await getCandidate(candidate.candidateId);
-							return response[0];
-						})
-					);
-					candidatesFromServer.then(response => {
-						setCandidates(response);
-						setElection(electionFromServer);
-						setIsLoading(false);
-					});
-				} catch (err) {
-					console.log(err.message);
-				}
-			};
-			fetchData();
+	const fetchData = async id => {
+		try {
+			const electionFromServer = await getElection(id);
+			const candidatesFromServer = Promise.all(
+				electionFromServer.map(async candidate => {
+					const response = await getCandidate(candidate.candidateId);
+					return response[0];
+				})
+			);
+			candidatesFromServer.then(response => {
+				setCandidates(response);
+				setElection(electionFromServer);
+				setIsLoading(false);
+			});
+		} catch (err) {
+			console.log(err.message);
 		}
-	}, [selectedCity]);
+	};
 
 	const handleSelectedCity = ({ target: { value: id } }) => {
 		setSelectedCity(null);
 		setCandidates(null);
 		setElection(null);
 		setIsLoading(true);
-		if (!!id) setSelectedCity(cities.find(city => city.id === id));
-		else setIsLoading(false);
+		if (!!id) {
+			const city = cities.find(city => city.id === id);
+			setSelectedCity(city);
+			fetchData(id);
+		} else setIsLoading(false);
 	};
 
 	return (
@@ -66,7 +62,7 @@ const ElectionsPage = () => {
 						</Spinner>
 					</div>
 				)}
-				{!selectedCity && <div>Selecione uma cidade</div>}
+				{!selectedCity && <div></div>}
 				{!isLoading && selectedCity && (
 					<Election selectedCity={selectedCity} election={election} candidates={candidates} />
 				)}
