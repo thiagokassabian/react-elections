@@ -1,21 +1,19 @@
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import Candidate from '../Candidate';
 import Input from '../Input';
 import './styles.scss';
 
-const Election = ({ election, selectedCity: city, candidates }) => {
-	const { name, votingPopulation, presence, absence } = city;
+const Election = ({ election }) => {
+	const { name, votingPopulation, presence, absence } = election.city;
+	const { candidates: allCandidates } = election;
 
 	const [searchCandidate, setSearchCandidate] = useState('');
-	const [electionState, setElectionState] = useState(election);
+	const [candidates, setCandidates] = useState(allCandidates);
 
 	const handleFilterCandidate = ({ target: { value } }) => {
 		setSearchCandidate(value);
-		const filteredElection = candidates
-			.filter(c => c.name.toLowerCase().includes(value.toLowerCase()))
-			.map(c => election.find(e => c.id === e.candidateId));
-
-		setElectionState(filteredElection);
+		const filteredElection = allCandidates.filter(c => c.candidateName.toLowerCase().includes(value.toLowerCase()));
+		setCandidates(filteredElection);
 	};
 
 	return (
@@ -32,9 +30,8 @@ const Election = ({ election, selectedCity: city, candidates }) => {
 					<strong>Abstenções:</strong> {absence.toLocaleString('pt-BR')}
 				</li>
 			</ul>
-			<p className="text-center text-md-start">{election.length} candidatos</p>
-			<div className="row">
-				<div className="col-sm-6 col-md-4 col-lg-3">
+			<div className="d-flex mb-3">
+				<div>
 					<Input
 						type="search"
 						value={searchCandidate}
@@ -44,24 +41,16 @@ const Election = ({ election, selectedCity: city, candidates }) => {
 						onChange={handleFilterCandidate}
 					/>
 				</div>
+				<div className="ms-auto align-self-end">{candidates.length} candidatos</div>
 			</div>
 			<div className="row">
-				{electionState
-					.sort((a, b) => b.votes - a.votes)
-					.map((candidate, i) => (
-						<div
-							className="col-6 col-md-4 col-xl-3 d-flex align-items-stretch mb-3"
-							key={candidate.candidateId}>
-							<Candidate
-								data={{
-									...candidate,
-									candidate: candidates.find(c => c.id === candidate.candidateId),
-									percentage: ((candidate.votes * 100) / city.presence).toFixed(2),
-									elected: i === 0 ? true : false,
-								}}
-							/>
-						</div>
-					))}
+				{candidates.map(candidate => (
+					<div
+						className="col-6 col-md-4 col-xl-3 d-flex align-items-stretch mb-3"
+						key={candidate.candidateId}>
+						<Candidate data={candidate} />
+					</div>
+				))}
 			</div>
 		</>
 	);

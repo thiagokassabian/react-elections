@@ -14,7 +14,7 @@ const Input = ({
 
 	return (
 		<Form>
-			<Form.Group className="mb-3" controlId={id}>
+			<Form.Group controlId={id}>
 				<Form.Label>{label}</Form.Label>
 				<Form.Control type={type} placeholder={placeholder} onChange={handleChange} />
 			</Form.Group>

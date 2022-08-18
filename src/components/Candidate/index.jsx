@@ -3,12 +3,7 @@ import Alert from 'react-bootstrap/Alert';
 import Badge from 'react-bootstrap/Badge';
 import './styles.scss';
 
-const Candidate = ({ data }) => {
-	const { votes, percentage, elected } = data;
-	const { name } = data.candidate;
-
-	console.log('candidate');
-
+const Candidate = ({ data: { candidateName: name, votes, percentage, elected } }) => {
 	return (
 		<Card className="flex-grow-1">
 			<Card.Img variant="top" src={`../assets/img/${name}.png`} />
