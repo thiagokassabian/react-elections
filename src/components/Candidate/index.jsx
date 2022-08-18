@@ -7,6 +7,8 @@ const Candidate = ({ data }) => {
 	const { votes, percentage, elected } = data;
 	const { name } = data.candidate;
 
+	console.log('candidate');
+
 	return (
 		<Card className="flex-grow-1">
 			<Card.Img variant="top" src={`../assets/img/${name}.png`} />

@@ -1,8 +1,22 @@
+import { useMemo, useState } from 'react';
 import Candidate from '../Candidate';
+import Input from '../Input';
 import './styles.scss';
 
 const Election = ({ election, selectedCity: city, candidates }) => {
 	const { name, votingPopulation, presence, absence } = city;
+
+	const [searchCandidate, setSearchCandidate] = useState('');
+	const [electionState, setElectionState] = useState(election);
+
+	const handleFilterCandidate = ({ target: { value } }) => {
+		setSearchCandidate(value);
+		const filteredElection = candidates
+			.filter(c => c.name.toLowerCase().includes(value.toLowerCase()))
+			.map(c => election.find(e => c.id === e.candidateId));
+
+		setElectionState(filteredElection);
+	};
 
 	return (
 		<>
@@ -20,7 +34,19 @@ const Election = ({ election, selectedCity: city, candidates }) => {
 			</ul>
 			<p className="text-center text-md-start">{election.length} candidatos</p>
 			<div className="row">
-				{election
+				<div className="col-sm-6 col-md-4 col-lg-3">
+					<Input
+						type="search"
+						value={searchCandidate}
+						name="searchCandidate"
+						label="Filtrar candidato"
+						placeholder=""
+						onChange={handleFilterCandidate}
+					/>
+				</div>
+			</div>
+			<div className="row">
+				{electionState
 					.sort((a, b) => b.votes - a.votes)
 					.map((candidate, i) => (
 						<div
