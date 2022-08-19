@@ -19,7 +19,7 @@ const Header = ({ title, selectedCity, onChange = null }) => {
 				<Navbar.Brand>{title}</Navbar.Brand>
 				<Nav className="ms-auto">
 					<Form.Select aria-label="Selecione a cidade" onChange={handleChangeCity} value={selectedCity}>
-						<option value="">Selecione a cidade</option>
+						{/* <option value="">Selecione a cidade</option> */}
 						{map(cities, ({ id, name }) => (
 							<option key={id} value={id}>
 								{name}
