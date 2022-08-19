@@ -1,9 +1,11 @@
-import { useEffect, useState, useReducer } from 'react';
+import { useEffect, useState, useReducer, createContext } from 'react';
 import { Container } from 'react-bootstrap';
 import Spinner from 'react-bootstrap/Spinner';
 import { getCandidate, getCities, getElection } from '../services/apiService';
 import Election from '../components/Election';
 import Header from '../components/Header';
+import orderBy from 'lodash.orderby';
+import find from 'lodash.find';
 import './styles.scss';
 
 const ACTIONS = {
@@ -25,19 +27,15 @@ function reducer(state, action) {
 				...state,
 				election: {
 					city: action.payload.city,
-					candidates: action.payload.election
-						.sort((a, b) => b.votes - a.votes)
-						.map((votation, i) => {
-							const { name: candidateName } = action.payload.candidates.find(
-								c => c.id === votation.candidateId
-							);
-							return {
-								...votation,
-								candidateName,
-								percentage: ((votation.votes * 100) / action.payload.city.presence).toFixed(2),
-								elected: i === 0 ? true : false,
-							};
-						}),
+					candidates: orderBy(action.payload.election, ['votes'], ['desc']).map((votation, i) => {
+						const { name: candidateName } = find(action.payload.candidates, { id: votation.candidateId });
+						return {
+							...votation,
+							candidateName,
+							percentage: ((votation.votes * 100) / action.payload.city.presence).toFixed(2),
+							elected: i === 0 ? true : false,
+						};
+					}),
 				},
 			};
 		default:
@@ -45,52 +43,68 @@ function reducer(state, action) {
 	}
 }
 
+export const GlobalContext = createContext();
+
 const ElectionsPage = () => {
 	const [isLoading, setIsLoading] = useState(false);
 	const [state, dispatch] = useReducer(reducer, []);
+	const [selectedCity, setSelectedCity] = useState('');
 
 	useEffect(() => {
+		setIsLoading(true);
 		const fetchCities = async () => {
 			const citiesFromServer = await getCities();
-			dispatch({ type: ACTIONS.ADD_CITIES, payload: { cities: citiesFromServer } });
+			const cities = orderBy(citiesFromServer, ['name']);
+			dispatch({ type: ACTIONS.ADD_CITIES, payload: { cities } });
+			setSelectedCity(cities[0].id);
 		};
 		fetchCities();
 	}, []);
 
-	const fetchData = async id => {
-		try {
-			const city = state.cities.find(city => city.id === id);
-			const electionFromServer = await getElection(id);
-			const candidatesFromServer = Promise.all(
-				electionFromServer.map(async candidate => {
-					const response = await getCandidate(candidate.candidateId);
-					return response[0];
-				})
-			);
-			candidatesFromServer.then(candidates => {
-				dispatch({
-					type: ACTIONS.ADD_ELECTION,
-					payload: { city: city, election: electionFromServer, candidates: candidates },
+	useEffect(() => {
+		const fetchData = async () => {
+			try {
+				const city = find(state.cities, { id: selectedCity });
+				const election = await getElection(selectedCity);
+				const candidatesFromServer = Promise.all(
+					election.map(async candidate => {
+						const response = await getCandidate(candidate.candidateId);
+						return response[0];
+					})
+				);
+				candidatesFromServer.then(candidates => {
+					dispatch({
+						type: ACTIONS.ADD_ELECTION,
+						payload: { city, election, candidates },
+					});
+					setIsLoading(false);
 				});
-				setIsLoading(false);
-			});
-		} catch (err) {
-			console.log(err.message);
-		}
-	};
+			} catch (err) {
+				console.log(err.message);
+			}
+		};
 
-	const handleSelectedCity = ({ target: { value: id } }) => {
+		if (selectedCity) fetchData();
+	}, [selectedCity]);
+
+	const handleSelectedCity = id => {
 		setIsLoading(true);
-		if (!!id) fetchData(id);
+		if (!!id) setSelectedCity(id);
 		else {
 			dispatch({ type: ACTIONS.CLEAR_ELECTION });
+			setSelectedCity('');
 			setIsLoading(false);
 		}
 	};
 
 	return (
-		<>
-			<Header title="react-elections" cities={state.cities} onChange={handleSelectedCity} />
+		<GlobalContext.Provider value={state}>
+			<Header
+				title="react-elections"
+				selectedCity={selectedCity}
+				cities={state.cities}
+				onChange={handleSelectedCity}
+			/>
 			<Container className="py-4">
 				{isLoading && (
 					<div className="text-center">
@@ -100,9 +114,9 @@ const ElectionsPage = () => {
 					</div>
 				)}
 				{!isLoading && !state.election && <div></div>}
-				{!isLoading && state.election && <Election election={state.election} />}
+				{!isLoading && state.election && <Election />}
 			</Container>
-		</>
+		</GlobalContext.Provider>
 	);
 };
 

@@ -1,9 +1,13 @@
-import { useState } from 'react';
+import { useContext, useState } from 'react';
+import { GlobalContext } from '../../pages/ElectionsPage';
+import map from 'lodash.map';
 import Candidate from '../Candidate';
 import Input from '../Input';
 import './styles.scss';
 
-const Election = ({ election }) => {
+const Election = () => {
+	const { election } = useContext(GlobalContext);
+
 	const { name, votingPopulation, presence, absence } = election.city;
 	const { candidates: allCandidates } = election;
 
@@ -44,7 +48,7 @@ const Election = ({ election }) => {
 				<div className="ms-auto align-self-end">{candidates.length} candidatos</div>
 			</div>
 			<div className="row">
-				{candidates.map(candidate => (
+				{map(candidates, candidate => (
 					<div
 						className="col-6 col-md-4 col-xl-3 d-flex align-items-stretch mb-3"
 						key={candidate.candidateId}>

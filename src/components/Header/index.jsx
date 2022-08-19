@@ -2,10 +2,15 @@ import Container from 'react-bootstrap/Container';
 import Nav from 'react-bootstrap/Nav';
 import Navbar from 'react-bootstrap/Navbar';
 import Form from 'react-bootstrap/Form';
+import { useContext } from 'react';
+import { GlobalContext } from '../../pages/ElectionsPage';
+import map from 'lodash.map';
 
-const Header = ({ title, cities, onChange = null }) => {
-	const handleChangeCity = event => {
-		if (onChange) onChange(event);
+const Header = ({ title, selectedCity, onChange = null }) => {
+	const { cities } = useContext(GlobalContext);
+
+	const handleChangeCity = ({ target: { value: id } }) => {
+		if (onChange) onChange(id);
 	};
 
 	return (
@@ -13,9 +18,9 @@ const Header = ({ title, cities, onChange = null }) => {
 			<Container>
 				<Navbar.Brand>{title}</Navbar.Brand>
 				<Nav className="ms-auto">
-					<Form.Select aria-label="Selecione a cidade" onChange={handleChangeCity}>
+					<Form.Select aria-label="Selecione a cidade" onChange={handleChangeCity} value={selectedCity}>
 						<option value="">Selecione a cidade</option>
-						{cities?.map(({ id, name }) => (
+						{map(cities, ({ id, name }) => (
 							<option key={id} value={id}>
 								{name}
 							</option>
