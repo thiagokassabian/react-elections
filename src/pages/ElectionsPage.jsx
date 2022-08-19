@@ -1,4 +1,4 @@
-import { useEffect, useState, useReducer, createContext } from 'react';
+import { useEffect, useState, useReducer, createContext, useCallback } from 'react';
 import { Container } from 'react-bootstrap';
 import Spinner from 'react-bootstrap/Spinner';
 import { getCandidate, getCities, getElection } from '../services/apiService';
@@ -8,7 +8,8 @@ import orderBy from 'lodash.orderby';
 import find from 'lodash.find';
 import './styles.scss';
 
-const ACTIONS = {
+export const ACTIONS = {
+	ADD_SELECTED_CITY_ID: 'selectedCityId',
 	ADD_CITIES: 'addCities',
 	ADD_ELECTION: 'addElection',
 	CLEAR_ELECTION: 'clearElection',
@@ -16,6 +17,8 @@ const ACTIONS = {
 
 function reducer(state, action) {
 	switch (action.type) {
+		case ACTIONS.ADD_SELECTED_CITY_ID:
+			return { ...state, selectedCityId: action.payload };
 		case ACTIONS.CLEAR_ELECTION:
 			const newState = { ...state };
 			delete newState.election;
@@ -47,8 +50,7 @@ export const GlobalContext = createContext();
 
 const ElectionsPage = () => {
 	const [isLoading, setIsLoading] = useState(false);
-	const [state, dispatch] = useReducer(reducer, []);
-	const [selectedCity, setSelectedCity] = useState('');
+	const [state, dispatch] = useReducer(reducer, {});
 
 	useEffect(() => {
 		setIsLoading(true);
@@ -56,55 +58,40 @@ const ElectionsPage = () => {
 			const citiesFromServer = await getCities();
 			const cities = orderBy(citiesFromServer, ['name']);
 			dispatch({ type: ACTIONS.ADD_CITIES, payload: { cities } });
-			setSelectedCity(cities[0].id);
+			dispatch({ type: ACTIONS.ADD_SELECTED_CITY_ID, payload: cities[0].id });
 		};
 		fetchCities();
 	}, []);
 
 	useEffect(() => {
-		const fetchData = async () => {
-			try {
-				const city = find(state.cities, { id: selectedCity });
-				const election = await getElection(selectedCity);
-				const candidatesFromServer = Promise.all(
-					election.map(async candidate => {
-						const response = await getCandidate(candidate.candidateId);
-						return response[0];
-					})
-				);
-				candidatesFromServer.then(candidates => {
-					dispatch({
-						type: ACTIONS.ADD_ELECTION,
-						payload: { city, election, candidates },
-					});
-					setIsLoading(false);
-				});
-			} catch (err) {
-				console.log(err.message);
-			}
-		};
-
-		if (selectedCity) fetchData();
-	}, [selectedCity]);
-
-	const handleSelectedCity = id => {
 		setIsLoading(true);
-		if (!!id) setSelectedCity(id);
-		else {
-			dispatch({ type: ACTIONS.CLEAR_ELECTION });
-			setSelectedCity('');
-			setIsLoading(false);
-		}
-	};
+		if (state.selectedCityId)
+			(async () => {
+				try {
+					const city = find(state.cities, { id: state.selectedCityId });
+					const election = await getElection(state.selectedCityId);
+					const candidatesFromServer = Promise.all(
+						election.map(async candidate => {
+							const response = await getCandidate(candidate.candidateId);
+							return response[0];
+						})
+					);
+					candidatesFromServer.then(candidates => {
+						dispatch({
+							type: ACTIONS.ADD_ELECTION,
+							payload: { city, election, candidates },
+						});
+						setIsLoading(false);
+					});
+				} catch (err) {
+					console.log(err.message);
+				}
+			})();
+	}, [state.selectedCityId]);
 
 	return (
-		<GlobalContext.Provider value={state}>
-			<Header
-				title="react-elections"
-				selectedCity={selectedCity}
-				cities={state.cities}
-				onChange={handleSelectedCity}
-			/>
+		<GlobalContext.Provider value={[state, dispatch]}>
+			<Header title="react-elections" />
 			<Container className="py-4">
 				{isLoading && (
 					<div className="text-center">
@@ -113,7 +100,6 @@ const ElectionsPage = () => {
 						</Spinner>
 					</div>
 				)}
-				{!isLoading && !state.election && <div></div>}
 				{!isLoading && state.election && <Election />}
 			</Container>
 		</GlobalContext.Provider>
