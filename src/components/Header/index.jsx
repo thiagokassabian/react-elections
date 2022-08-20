@@ -3,12 +3,15 @@ import Nav from 'react-bootstrap/Nav';
 import Navbar from 'react-bootstrap/Navbar';
 import Form from 'react-bootstrap/Form';
 import { useContext } from 'react';
-import { ACTIONS, GlobalContext } from '../../pages/ElectionsPage';
 import map from 'lodash.map';
+import { ElectionsContext } from '../../context/ElectionsContext';
+import { ACTIONS } from '../../context/ElectionsActions';
 
 const Header = ({ title }) => {
-	const [state, dispatch] = useContext(GlobalContext);
-	const { cities, selectedCityId } = state;
+	const {
+		state: { cities, selectedCityId },
+		dispatch,
+	} = useContext(ElectionsContext);
 
 	const handleChangeCity = ({ target: { value: id } }) => {
 		dispatch({ type: ACTIONS.ADD_SELECTED_CITY_ID, payload: id });

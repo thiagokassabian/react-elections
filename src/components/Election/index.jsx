@@ -1,24 +1,26 @@
-import { useContext, useEffect, useState } from 'react';
-import { GlobalContext } from '../../pages/ElectionsPage';
+import { useContext, useState } from 'react';
 import map from 'lodash.map';
 import Candidate from '../Candidate';
 import Input from '../Input';
 import './styles.scss';
+import { ElectionsContext } from '../../context/ElectionsContext';
 
 const Election = () => {
-	const [state] = useContext(GlobalContext);
-
-	const { election } = state;
-	const { name, votingPopulation, presence, absence } = election.city;
+	const {
+		state: {
+			election: {
+				city: { name, votingPopulation, presence, absence },
+				candidates: allCandidates,
+			},
+		},
+	} = useContext(ElectionsContext);
 
 	const [searchCandidate, setSearchCandidate] = useState('');
-	const [candidates, setCandidates] = useState(election.candidates);
+	const [candidates, setCandidates] = useState(allCandidates);
 
 	const handleFilterCandidate = ({ target: { value } }) => {
 		setSearchCandidate(value);
-		const filteredElection = election.candidates.filter(c =>
-			c.candidateName.toLowerCase().includes(value.toLowerCase())
-		);
+		const filteredElection = allCandidates.filter(c => c.candidateName.toLowerCase().includes(value.toLowerCase()));
 		setCandidates(filteredElection);
 	};
 

@@ -1,5 +1,5 @@
 import Card from 'react-bootstrap/Card';
-import Alert from 'react-bootstrap/Alert';
+// import Alert from 'react-bootstrap/Alert';
 import Badge from 'react-bootstrap/Badge';
 import './styles.scss';
 
