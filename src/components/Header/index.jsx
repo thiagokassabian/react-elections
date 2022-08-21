@@ -4,7 +4,6 @@ import Navbar from 'react-bootstrap/Navbar';
 import Form from 'react-bootstrap/Form';
 import { useContext } from 'react';
 import map from 'lodash.map';
-import { ACTIONS } from '../../context/ElectionsActions';
 import { ElectionsContext } from '../../contexts/ElectionsProvider/context';
 import { changeCity } from '../../contexts/ElectionsProvider/actions';
 
