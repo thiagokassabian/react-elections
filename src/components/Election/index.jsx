@@ -3,11 +3,11 @@ import map from 'lodash.map';
 import Candidate from '../Candidate';
 import Input from '../Input';
 import './styles.scss';
-import { ElectionsContext } from '../../context/ElectionsContext';
+import { ElectionsContext } from '../../contexts/ElectionsProvider/context';
 
 const Election = () => {
 	const {
-		state: {
+		electionsState: {
 			election: {
 				city: { name, votingPopulation, presence, absence },
 				candidates: allCandidates,
